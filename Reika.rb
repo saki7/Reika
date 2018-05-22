@@ -139,7 +139,17 @@ bot.message do |ev|
         # flag = creator['loccountrycode'].present? ? ":flag_#{sanitize_d(creator['loccountrycode']).downcase}:" : nil
         updated = Time.at(item['time_updated']).to_datetime
         updatedDelta = (DateTime.now - updated).to_i
-        embed.add_field(name: ":file_folder: **\`#{item['file_size'].to_s(:human_size)}\`**", value: ":tools: 最終更新: #{updatedDelta} 日前#{updatedDelta <= 7 ? ' :new:' : ''}", inline: true)
+        updatedDeltaL = \
+          case updatedDelta
+          when 0
+            "Today"
+          when 1
+            "Yesterday"
+          else
+            "#{updatedDelta} days ago"
+          end
+
+        embed.add_field(name: ":file_folder: **\`#{item['file_size'].to_s(:human_size)}\`**", value: ":tools: Last update: #{updatedDeltaL}#{updatedDelta <= 7 ? ' :new:' : ''}", inline: true)
 
         embed.timestamp = Time.at(item['time_created'])
         embed.footer = Discordrb::Webhooks::EmbedFooter.new(
