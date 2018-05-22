@@ -87,16 +87,16 @@ bot.message do |ev|
     url = Addressable::URI.parse(url_raw)
     params = WorkshopURL.extract(url)
 
-    break unless params
+    next unless params
     puts "[message] #{ev.user.name} (#{ev.user.id}): #{ev.message}"
 
     j = JSON.parse(api.PublishedFileDetails(Integer(params['id'])).body)
     j['response']['publishedfiledetails'].each do |item|
+      next unless item['visibility'] == 0
+      next if item['banned'] != 0
+
       ev.channel.send_embed do |embed|
         # item['description'] = ''
-        return unless item['visibility'] == 0
-        return if item['banned'] != 0
-
         tags = item['tags'].map {|e| e['tag']}
         embed.color = tags.include?('Mod') ? '#ff71ef' : '#ff9153'
 
