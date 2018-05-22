@@ -75,7 +75,15 @@ end
 bot.message do |ev|
   api = SteamAPI.new
 
-  URI.extract(ev.message.text).uniq.each do |url_raw|
+  urls = URI.extract(ev.message.text).uniq
+  ignored_urls = urls.select {|url|
+    ev.message.text.to_s.include? "<#{url.to_s}>"
+  }
+
+  # puts urls, ignored_urls
+
+  urls.each do |url_raw|
+    next if ignored_urls.include?(url_raw)
     url = Addressable::URI.parse(url_raw)
     params = WorkshopURL.extract(url)
 
