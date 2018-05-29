@@ -124,10 +124,14 @@ bot.message do |ev|
         creator = JSON.parse(api.PlayerSummaries(item['creator']).body)['response']['players'][0]
         # puts creator
 
-        embed.add_field(name: ':white_check_mark:', value: "**#{item['subscriptions'].to_s(:delimited)}**", inline: true)
-        embed.add_field(name: ':hearts:', value: "**#{item['favorited'].to_s(:delimited)}**", inline: true)
-        embed.add_field(name: ':eye:', value: "**#{item['views'].to_s(:delimited)}**", inline: true)
-
+        embed.add_field(
+          name: ":white_check_mark: **#{item['subscriptions'].to_s(:delimited)}**",
+          value: [
+            ":hearts: **#{item['favorited'].to_s(:delimited)}**",
+            ":eye: **#{item['views'].to_s(:delimited)}**",
+          ].join(' '),
+          inline: true
+        )
 
         name = "#{sanitize_d(creator['personaname'])}"
         realname = creator['realname'].present? ? "(#{sanitize_d(creator['realname'])})" : ''
