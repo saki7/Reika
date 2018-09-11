@@ -188,7 +188,7 @@ end
 loop do
   begin
     bot.run
-  rescue e
+  rescue => e
     puts e
   end
 end
