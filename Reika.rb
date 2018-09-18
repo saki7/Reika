@@ -190,6 +190,8 @@ bot.mention do |ev|
     ev.channel.send_message "<@#{DynoID}> あんたには負けないんだから"
   when /(?:ちゅっ?)+/, /#{to_emoji(%w[peropero oppai ashi eroi]).join('|')}/
     ev.channel.send_message "<@#{ev.user.id}> 二度とわたしに話しかけないで"
+  when /#{to_emoji(%w[kawaii]).join('|')}/, /かわいい|kawaii|可爱/
+    ev.channel.send_message "<@#{ev.user.id}> 知ってる。"
   else
     next
   end
