@@ -29,7 +29,7 @@ bot = Discordrb::Bot.new(
 )
 
 WorkshopURL = Addressable::Template.new(
-  'https://steamcommunity.com/{sharedfiles,workshop}/filedetails/{?id,params*}'
+  '{http,https}://steamcommunity.com/{sharedfiles,workshop}/filedetails/{?id,params*}'
 )
 
 class SteamAPI
