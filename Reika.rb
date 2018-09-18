@@ -175,6 +175,10 @@ bot.message do |ev|
   end
 end
 
+def to_emoji(args)
+  Array.wrap(args).map {|arg| ":#{arg}:" }
+end
+
 bot.mention do |ev|
   next unless ev.message.mentions.any? {|u| u.current_bot? }
 
@@ -184,7 +188,7 @@ bot.mention do |ev|
   case content
   when /意気込み/
     ev.channel.send_message "<@#{DynoID}> あんたには負けないんだから"
-  when /\A(?:ちゅっ?)+\z/
+  when /(?:ちゅっ?)+/, /#{to_emoji(%w[peropero oppai ashi eroi]).join('|')}/
     ev.channel.send_message "<@#{ev.user.id}> 二度とわたしに話しかけないで"
   else
     next
