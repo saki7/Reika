@@ -13,6 +13,7 @@ require 'active_support/core_ext/date'
 require 'date'
 require 'json'
 require 'uri'
+require 'pry-byebug'
 
 
 if ENV['DISCORD_TOKEN'].blank? || ENV['STEAM_API_KEY'].blank?
@@ -177,11 +178,19 @@ end
 bot.mention do |ev|
   next unless ev.message.mentions.any? {|u| u.current_bot? }
 
-  # Dyno
-  if ev.message.text =~ /意気込み/
-    puts ev.message.text
+  content = ev.message.content.sub(/^<@#{bot.profile.id}>\s+/, '')
+  # binding.pry
+
+  case content
+  when /意気込み/
     ev.channel.send_message "<@#{DynoID}> あんたには負けないんだから"
+  when /\A(?:ちゅっ?)+\z/
+    ev.channel.send_message "<@#{ev.user.id}> 二度とわたしに話しかけないで"
+  else
+    next
   end
+
+  puts ev.message.content
 end
 
 
