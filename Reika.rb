@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'addressable'
 require 'faraday'
 require 'discordrb'
@@ -16,8 +18,10 @@ require 'uri'
 require 'pry-byebug'
 
 
-if ENV['DISCORD_TOKEN'].blank? || ENV['STEAM_API_KEY'].blank?
-  throw NotImplementedError, "you need to specify 'DISCORD_TOKEN' and 'STEAM_API_KEY'"
+RequiredEnvVars = %w[DISCORD_TOKEN STEAM_API_KEY STEAM_IMG_PROXY_HOST]
+
+if RequiredEnvVars.any? {|name| ENV[name].blank? }
+  raise NotImplementedError, "you need to specify environment variables: #{RequiredEnvVars.join(', ')}"
 end
 
 
@@ -31,6 +35,9 @@ bot = Discordrb::Bot.new(
 
 WorkshopURL = Addressable::Template.new(
   '{http,https}://steamcommunity.com/{sharedfiles,workshop}/filedetails/{?id,params*}'
+)
+SteamImageProxyURL = Addressable::Template.new(
+  "https://#{ENV['STEAM_IMG_PROXY_HOST']}/{type}/{arg0}/{arg1}/image.jpg?interpolation=lanczos-none&output-format=jpeg&output-quality=95&fit=inside%7C128%3A128&composite-to=*,*%7C128%3A128&background-color=black&extension=jpeg"
 )
 
 class SteamAPI
@@ -71,6 +78,22 @@ end
 
 def sanitize_d(text)
   text.gsub(/`/, '\\\\`')
+end
+
+def preview_url_parts(url)
+  _, type, *args = Pathname.new(Addressable::URI.parse(url).path).to_s.split(File::SEPARATOR)
+
+  case type
+  when 'ugc'
+    {
+      type: type,
+      arg0: args[0],
+      arg1: args[1],
+    }
+
+  else
+    raise NotImplementedError, "Steam URL type `#{type}` is not supported"
+  end
 end
 
 bot.message do |ev|
@@ -118,8 +141,9 @@ bot.message do |ev|
           .truncate(200, separator: /\p{Zs}/, omission: ' ...')
 
         embed.thumbnail = Discordrb::Webhooks::EmbedThumbnail.new(
-          url: Addressable::URI.parse(item['preview_url']).to_s
+          url: SteamImageProxyURL.expand(preview_url_parts(item['preview_url'])).to_s
         )
+
         embed.url = url
 
         creator = JSON.parse(api.PlayerSummaries(item['creator']).body)['response']['players'][0]
